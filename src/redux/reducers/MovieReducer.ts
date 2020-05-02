@@ -1,14 +1,15 @@
 import { Imovie } from '../../services/MovieService';
 import { ISearchCondition } from '../../services/CommonTypes';
 import {
-  MovieActions,
   SaveMoviesAction,
   SetConditionAction,
   SetLoadingAction,
   DeleteAction,
   MovieSwitchAction,
+  actionTypes,
 } from '../actions/MovieAction';
 import { Reducer } from 'react';
+import { ChangeType } from '../actions/ActionTypes';
 
 // 类型演算
 export type IMovieCondition = Required<ISearchCondition>;
@@ -20,6 +21,8 @@ export interface IMovieState {
   total: number; // 总数据量
   isLoading: boolean; // 是否正在加载数据
   totalPage: number; // 总页数
+  id: string; //删除数据时的ID
+  type: ChangeType;
 }
 
 const defaultState: IMovieState = {
@@ -32,6 +35,8 @@ const defaultState: IMovieState = {
   total: 0,
   isLoading: false,
   totalPage: 0,
+  id: '',
+  type: ChangeType.isClassic,
 };
 
 type MovieReducer<A> = Reducer<IMovieState, A>;
@@ -70,6 +75,7 @@ const setLoading: MovieReducer<SetLoadingAction> = function (state, action) {
 const deleteMovie: MovieReducer<DeleteAction> = function (state, action) {
   return {
     ...state,
+    id: action.payload,
     data: state.data.filter((m) => m._id !== action.payload),
     total: state.total - 1,
     totalPage: Math.ceil((state.total - 1) / state.condition.limit),
@@ -89,30 +95,30 @@ const changeSwitch: MovieReducer<MovieSwitchAction> = function (state, action) {
   const newData = state.data.map((d) => {
     if (d._id === action.payload.id) {
       return newMovie;
+    } else {
+      return d;
     }
-    return d;
   });
 
   return {
     ...state,
     data: newData,
+    id: action.payload.id,
+    type: action.payload.type,
   };
 };
 
-export default function (
-  state: IMovieState = defaultState,
-  action: MovieActions
-) {
+export default function (state: IMovieState = defaultState, action: any) {
   switch (action.type) {
-    case 'MOVIE_SAVE':
+    case actionTypes.movieSave:
       return saveMovie(state, action);
-    case 'MOVIE_SETCONDITION':
+    case actionTypes.movieSetCondition:
       return setCondition(state, action);
-    case 'MOVIE_SETLOADING':
+    case actionTypes.movieSetLoading:
       return setLoading(state, action);
-    case 'MOVIE_DELETE':
+    case actionTypes.movieDelete:
       return deleteMovie(state, action);
-    case 'MOVIE_SWITCH':
+    case actionTypes.movieSwitch:
       return changeSwitch(state, action);
     default:
       return state;

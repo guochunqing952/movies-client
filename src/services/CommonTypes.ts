@@ -4,12 +4,12 @@ export interface IResponseError {
 }
 
 export interface IResponseData<T> {
-  err: string;
+  err: '';
   data: T;
 }
 
 export interface IResponsePageData<T> {
-  err: string;
+  err: '';
   total: number;
   data: T[];
 }

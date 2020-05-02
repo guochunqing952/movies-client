@@ -1,23 +1,31 @@
 // 各种action创建函数
 
-import { IAction } from './ActionTypes';
-import { Imovie, MovieService } from '../../services/MovieService';
+import { Action, ChangeType } from './ActionTypes';
+import { Imovie } from '../../services/MovieService';
 import { ISearchCondition } from '../../services/CommonTypes';
 
-export type SaveMoviesAction = IAction<
-  'MOVIE_SAVE',
-  {
-    movies: Imovie[];
-    total: number;
-  }
->;
+export const actionTypes = {
+  movieSave: Symbol('MOVIE_SAVE'),
+  movieSetLoading: Symbol('MOVIE_SETLOADING'),
+  movieSetCondition: Symbol('MOVIE_SETCONDITION'),
+  movieDelete: Symbol('MOVIE_DELETE'),
+  movieSwitch: Symbol('MOVIE_SWITCH'),
+  fetchMovie: Symbol('FETCH_MOVIE'),
+  deleteMovie: Symbol('DELETE_MOVIE'),
+  changeMovie: Symbol('CHANGE_MOVIE'),
+};
+
+export type SaveMoviesAction = Action<{
+  movies: Imovie[];
+  total: number;
+}>;
 
 export function saveMoviesAction(
   movies: Imovie[],
   total: number
 ): SaveMoviesAction {
   return {
-    type: 'MOVIE_SAVE',
+    type: actionTypes.movieSave,
     payload: {
       movies,
       total,
@@ -25,46 +33,48 @@ export function saveMoviesAction(
   };
 }
 
-export type SetLoadingAction = IAction<'MOVIE_SETLOADING', boolean>;
+export type SetLoadingAction = Action<boolean>;
 
 export function setLoadingAction(isLoading: boolean): SetLoadingAction {
   return {
-    type: 'MOVIE_SETLOADING',
+    type: actionTypes.movieSetLoading,
     payload: isLoading,
   };
 }
 
-export type SetConditionAction = IAction<
-  'MOVIE_SETCONDITION',
-  ISearchCondition
->;
+export type SetConditionAction = Action<ISearchCondition>;
 
 export function setConditionAction(
   condition: ISearchCondition
 ): SetConditionAction {
   return {
-    type: 'MOVIE_SETCONDITION',
+    type: actionTypes.movieSetCondition,
     payload: condition,
   };
 }
 
-export type DeleteAction = IAction<'MOVIE_DELETE', string>;
+export type DeleteAction = Action<string>;
 
 export function deleteAction(id: string): DeleteAction {
   return {
-    type: 'MOVIE_DELETE',
+    type: actionTypes.movieDelete,
     payload: id,
   };
 }
 
+export type MovieSwitchAction = Action<{
+  type: ChangeType;
+  newVal: boolean;
+  id: string;
+}>;
 // 改变热映、经典影片等
 export function changeSwitchAction(
-  type: 'isHot' | 'isComing' | 'isClassic',
+  type: ChangeType,
   newVal: boolean,
   id: string
 ): MovieSwitchAction {
   return {
-    type: 'MOVIE_SWITCH',
+    type: actionTypes.movieSwitch,
     payload: {
       type,
       newVal,
@@ -73,56 +83,21 @@ export function changeSwitchAction(
   };
 }
 
-// 根据条件从服务器获取电影的数据
-export function fetchMovies(condition: ISearchCondition) {
-  return async (dispatch: any, getState: any) => {
-    // 1、设置加载状态
-    dispatch(setLoadingAction(true));
-    // 2、设置条件
-    dispatch(setConditionAction(condition));
-    // 3、获取服务器数据
-    const curCondition = getState().movie.condition;
-    const resp = await MovieService.getMovies(curCondition);
-    // 4、更改仓库的数据
-    dispatch(saveMoviesAction(resp.data, resp.total));
-    // 5、 关闭加载状态
-    dispatch(setLoadingAction(false));
+export function fetchMovies() {
+  return {
+    type: actionTypes.fetchMovie,
   };
 }
 
-// 删除电影数据
-export function deleteMovie(id: string) {
-  return async (dispatch: any) => {
-    // 1、设置加载状态
-    dispatch(setLoadingAction(true));
-    // 2、 删除仓库数据
-    await MovieService.delete(id);
-    dispatch(deleteAction(id));
-    // 3、 关闭加载状态
-    dispatch(setLoadingAction(false));
+export function deleteMovies() {
+  return {
+    type: actionTypes.deleteMovie,
   };
 }
 
-export type MovieSwitchAction = IAction<
-  'MOVIE_SWITCH',
-  {
-    type: 'isHot' | 'isComing' | 'isClassic';
-    newVal: boolean;
-    id: string;
-  }
->;
-
-// 改变热映、经典影片等
-export function changeSwitch(
-  type: 'isHot' | 'isComing' | 'isClassic',
-  newVal: boolean,
-  id: string
-) {
-  return async (dispatch: any) => {
-    dispatch(changeSwitchAction(type, newVal, id));
-    await MovieService.edit(id, {
-      [type]: newVal,
-    });
+export function changeSwitch() {
+  return {
+    type: actionTypes.changeMovie,
   };
 }
 

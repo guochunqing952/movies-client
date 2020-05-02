@@ -5,8 +5,10 @@ import { IMovieState } from '../../redux/reducers/MovieReducer';
 import {
   fetchMovies,
   changeSwitch,
-  deleteMovie,
   setConditionAction,
+  changeSwitchAction,
+  deleteAction,
+  deleteMovies,
 } from '../../redux/actions/MovieAction';
 
 function mapStateToProps(state: any): IMovieState {
@@ -16,28 +18,26 @@ function mapStateToProps(state: any): IMovieState {
 function mapDispatchToProps(dispatch: Dispatch<any>): IMovieTableEvents {
   return {
     onLoad() {
-      dispatch(
-        fetchMovies({
-          page: 1,
-          limit: 10,
-          key: '',
-        })
-      );
+      dispatch(fetchMovies());
     },
     onSwitchChange(type, newState, id) {
-      dispatch(changeSwitch(type, newState, id));
+      dispatch(changeSwitchAction(type, newState, id));
+      dispatch(changeSwitch());
     },
-    async onDelete(id: string) {
-      dispatch(deleteMovie(id));
+    onDelete(id: string) {
+      dispatch(deleteAction(id));
+      dispatch(deleteMovies());
     },
     onChange(newPage) {
       dispatch(
-        fetchMovies({
+        setConditionAction({
           page: newPage,
         })
       );
+      dispatch(fetchMovies());
     },
     onKeyChange(key) {
+      console.log(key);
       dispatch(
         setConditionAction({
           key,
@@ -46,10 +46,11 @@ function mapDispatchToProps(dispatch: Dispatch<any>): IMovieTableEvents {
     },
     onSearch() {
       dispatch(
-        fetchMovies({
+        setConditionAction({
           page: 1,
         })
       );
+      dispatch(fetchMovies());
     },
   };
 }

@@ -1,4 +1,10 @@
-export interface IAction<T extends string, P> {
-  type: T;
+export interface Action<P> {
+  type: Symbol;
   payload: P;
+}
+
+export enum ChangeType {
+  isHot = 'isHot',
+  isComing = 'isComing',
+  isClassic = 'isClassic',
 }

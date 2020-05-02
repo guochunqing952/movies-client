@@ -7,16 +7,13 @@ import { Imovie } from '../services/MovieService';
 import img from '../assets/1.jpg';
 import { NavLink } from 'react-router-dom';
 import { PaginationConfig } from 'antd/lib/pagination';
+import { ChangeType } from '../redux/actions/ActionTypes';
 
 export interface IMovieTableEvents {
   // 完成加载之后的事件
   onLoad: () => void;
-  onSwitchChange: (
-    type: 'isHot' | 'isComing' | 'isClassic',
-    newState: boolean,
-    id: string
-  ) => void;
-  onDelete: (id: string) => Promise<void>;
+  onSwitchChange: (type: ChangeType, newState: boolean, id: string) => void;
+  onDelete: (id: string) => void;
   onChange: (newPage: number) => void;
   onKeyChange: (key: string) => void;
   onSearch: () => void;
@@ -26,6 +23,7 @@ export default class MovieTable extends Component<
   IMovieState & IMovieTableEvents
 > {
   componentDidMount() {
+    // console.log('sajhdbxaksfvakjbcxkjzvcksbkcs');
     if (this.props.onLoad) {
       this.props.onLoad();
     }
@@ -105,13 +103,17 @@ export default class MovieTable extends Component<
       },
       {
         title: '正在热映',
-        dataIndex: 'isHot',
+        dataIndex: ChangeType.isHot,
         render: (isHot, record) => {
           return (
             <Switch
               checked={isHot}
               onChange={(newVal) => {
-                this.props.onSwitchChange('isHot', newVal, record._id!);
+                this.props.onSwitchChange(
+                  ChangeType.isHot,
+                  newVal,
+                  record._id!
+                );
               }}
             />
           );
@@ -119,13 +121,17 @@ export default class MovieTable extends Component<
       },
       {
         title: '即将上映',
-        dataIndex: 'isComing',
+        dataIndex: ChangeType.isComing,
         render: (isComing, record) => {
           return (
             <Switch
               checked={isComing}
               onChange={(newVal) => {
-                this.props.onSwitchChange('isComing', newVal, record._id!);
+                this.props.onSwitchChange(
+                  ChangeType.isComing,
+                  newVal,
+                  record._id!
+                );
               }}
             />
           );
@@ -133,14 +139,18 @@ export default class MovieTable extends Component<
       },
 
       {
-        title: '即将上映',
-        dataIndex: 'isClassic',
+        title: '经典影片',
+        dataIndex: ChangeType.isClassic,
         render: (isClassic, record) => {
           return (
             <Switch
               checked={isClassic}
               onChange={(newVal) => {
-                this.props.onSwitchChange('isClassic', newVal, record._id!);
+                this.props.onSwitchChange(
+                  ChangeType.isClassic,
+                  newVal,
+                  record._id!
+                );
               }}
             />
           );
@@ -171,7 +181,6 @@ export default class MovieTable extends Component<
                   删除
                 </Button>
               </Popconfirm>
-              ,
             </div>
           );
         },
@@ -195,6 +204,7 @@ export default class MovieTable extends Component<
   }
 
   render() {
+    // console.log(this.props);
     return (
       <Table
         rowKey="_id"

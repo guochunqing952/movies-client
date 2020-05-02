@@ -6,7 +6,7 @@ import { PlusOutlined } from '@ant-design/icons';
 export default class ImgUpLoader extends Component {
   render() {
     return (
-      <Upload action="/api/upload" name="imgfile">
+      <Upload action="/api/upload">
         <div>
           <PlusOutlined />
           <div className="ant-upload-text">Upload</div>
